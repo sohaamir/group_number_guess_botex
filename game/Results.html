@@ -1,0 +1,35 @@
+{{ block title }}
+    Final Results
+{{ endblock }}
+
+{{ block content }}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Game Results</h5>
+        
+        <div class="alert alert-success mb-3">
+            <h4>You placed {{ player_final_rank }} with a score of {{ player_total_score }}</h4>
+        </div>
+        
+        <h6>Final Standings:</h6>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Name</th>
+                    <th>Total Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in players_data %}
+                    <tr{% if p.name == player_name %} class="table-primary"{% endif %}>
+                        <td>{{ p.final_rank }}</td>
+                        <td>{{ p.name }}</td>
+                        <td>{{ p.total_score }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{ endblock }}

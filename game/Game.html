@@ -1,0 +1,209 @@
+{{ block title }}
+    Round {{ round_number }} of {{ total_rounds }}
+{{ endblock }}
+
+{{ block content }}
+<div class="card mb-3">
+    <div class="card-body">
+        <!-- Phase 1: Guess input phase -->
+        <div id="guess-phase">
+            <div class="alert alert-warning mb-3">
+                <h5>Time Left: <span id="guess-timer">{{ guess_time_seconds }}</span> seconds</h5>
+            </div>
+            
+            <div id="guess-container">
+                <h5 class="card-title">Make Your Guess</h5>
+                <p class="card-text">Enter a number between 0 and 100:</p>
+                
+                {{ formfields }}
+                
+                <button id="submit-button" class="btn btn-primary">Submit</button>
+                <p class="text-muted mt-2">Press Enter to submit your guess</p>
+            </div>
+            
+            <div id="waiting-container" style="display: none;">
+                <div class="alert alert-success">
+                    <h5 id="waiting-message"></h5>
+                    <p>Waiting for other players to submit their guesses...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ next_button }}
+
+<script>
+    // Variables
+    let guessTimerInterval;
+    let resultsTimerInterval;
+    let guessSecondsLeft = {{ guess_time_seconds }};
+    let resultSecondsLeft = {{ result_time_seconds }};
+    const guessTimer = document.getElementById('guess-timer');
+    const resultsTimer = document.getElementById('results-timer');
+    const guessPhase = document.getElementById('guess-phase');
+    const resultsPhase = document.getElementById('results-phase');
+    const guessContainer = document.getElementById('guess-container');
+    const waitingContainer = document.getElementById('waiting-container');
+    const waitingMessage = document.getElementById('waiting-message');
+    const guessInput = document.getElementById('id_guess');
+    const submitButton = document.getElementById('submit-button');
+    const nextButton = document.querySelector('.otree-btn-next');
+    const targetNumberElem = document.getElementById('target-number');
+    const yourGuessElem = document.getElementById('your-guess');
+    const yourScoreElem = document.getElementById('your-score');
+    const yourRankElem = document.getElementById('your-rank');
+    const resultsTable = document.getElementById('results-table');
+    let playerData = null;
+    let myPlayerId = null;
+    
+    // Hide the default next button
+    nextButton.style.display = 'none';
+    
+    // Start the guess timer
+    function startGuessTimer() {
+        guessTimerInterval = setInterval(function() {
+            guessSecondsLeft--;
+            guessTimer.textContent = guessSecondsLeft;
+            
+            if (guessSecondsLeft <= 0) {
+                clearInterval(guessTimerInterval);
+                autoSubmit();
+            }
+        }, 1000);
+    }
+    
+    // Start the results timer
+    function startResultsTimer() {
+        resultsTimerInterval = setInterval(function() {
+            resultSecondsLeft--;
+            resultsTimer.textContent = resultSecondsLeft;
+            
+            if (resultSecondsLeft <= 0) {
+                clearInterval(resultsTimerInterval);
+                // Move to next round
+                nextButton.click();
+            }
+        }, 1000);
+    }
+    
+    // Auto submit when time runs out
+    function autoSubmit() {
+        // If no input, set to 100
+        if (!guessInput.value.trim()) {
+            guessInput.value = 100;
+        }
+        submitGuess();
+    }
+    
+    // Submit the guess
+    function submitGuess() {
+        const guessValue = guessInput.value.trim();
+        
+        // Validate input
+        if (guessValue !== "" && !isNaN(guessValue) && parseInt(guessValue) >= 0 && parseInt(guessValue) <= 100) {
+            // Valid input
+            clearInterval(guessTimerInterval);
+            
+            // Send the guess to the server
+            liveSend({
+                'submitted_guess': parseInt(guessValue)
+            });
+            
+            // Show waiting state
+            guessContainer.style.display = 'none';
+            waitingContainer.style.display = 'block';
+            waitingMessage.textContent = `You have chosen ${guessValue}`;
+        } else {
+            // Invalid input
+            alert("Please enter a valid number between 0 and 100");
+        }
+    }
+    
+    // Switch to results phase
+    function showResults(data) {
+        // Stop any existing timers
+        clearInterval(guessTimerInterval);
+        
+        // Hide guess phase, show results phase
+        guessPhase.style.display = 'none';
+        resultsPhase.style.display = 'block';
+        
+        // Update results content
+        targetNumberElem.textContent = data.target_number;
+        
+        // Find this player's data
+        const myData = data.players_data.find(p => p.id === myPlayerId);
+        
+        // If we found the player data
+        if (myData) {
+            yourGuessElem.textContent = myData.guess;
+            yourScoreElem.textContent = myData.score;
+            yourRankElem.textContent = myData.rank;
+        }
+        
+        // Clear existing table
+        resultsTable.innerHTML = '';
+        
+        // Populate results table
+        data.players_data.forEach(p => {
+            const row = document.createElement('tr');
+            if (p.id === myPlayerId) {
+                row.className = 'table-primary';
+            }
+            
+            row.innerHTML = `
+                <td>${p.rank}</td>
+                <td>${p.name}</td>
+                <td>${p.guess}</td>
+                <td>${p.score}</td>
+            `;
+            
+            resultsTable.appendChild(row);
+        });
+        
+        // Start the results timer
+        startResultsTimer();
+    }
+    
+    // Handle live messages from server
+    function liveRecv(data) {
+        if (data.phase === 'waiting') {
+            // Update waiting screen
+            guessContainer.style.display = 'none';
+            waitingContainer.style.display = 'block';
+            waitingMessage.textContent = `You have chosen ${data.guess}`;
+        }
+        else if (data.phase === 'results') {
+            // Show results
+            showResults(data.results);
+        }
+    }
+    
+    // Event listener for the submit button
+    submitButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        submitGuess();
+    });
+    
+    // Event listener for Enter key
+    guessInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            submitGuess();
+        }
+    });
+    
+    // Get player ID
+    window.addEventListener('load', function() {
+        // Focus on the input field when the page loads
+        guessInput.focus();
+        
+        // Start the timer when the page loads
+        startGuessTimer();
+        
+        // Get player ID - oTree specific way of finding our player ID
+        myPlayerId = parseInt(document.body.getAttribute('data-player-id'));
+    });
+</script>
+{{ endblock }}

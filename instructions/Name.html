@@ -1,0 +1,16 @@
+{{ block title }}
+    Welcome
+{{ endblock }}
+
+{{ block content }}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Welcome to the Number Guessing Game</h5>
+            <p class="card-text">Please enter your name below to begin.</p>
+            
+            {{ formfields }}
+            
+            {{ next_button }}
+        </div>
+    </div>
+{{ endblock }}

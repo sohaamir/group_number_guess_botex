@@ -1,0 +1,68 @@
+{% extends "global/NoRefreshWaitPage.html" %}
+{% load otree static %}
+
+{% block title %}Waiting for Other Players{% endblock %}
+
+{% block content %}
+    <style>
+        .center-text {
+            text-align: center;
+        }
+        p {
+            font-size: 20px;
+        }
+        .timer-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .timer {
+            font-size: 28px;
+            font-weight: bold;
+            color: #dc3545;
+            margin-top: 10px;
+        }
+        .counter-container {
+            background-color: #e6f7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .counter {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        #snakeCanvas {
+            border: 2px solid #333;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            display: block;
+        }
+    </style>
+
+    <div style="text-align: center;">
+        <h2>Waiting for other players to join...</h2>
+        <br>
+
+        <!-- Participant Counter -->
+        <div class="counter-container">
+            <p>Currently waiting: <span class="counter" id="waiting-count">{{ waiting_count }}</span> of {{ group_size }} players</p>
+            {% if players_needed > 0 %}
+                <p>Need <span class="counter" id="needed-count">{{ players_needed }}</span> more to start</p>
+            {% endif %}
+        </div>
+        
+        <br>
+        <p>Each game is made up of <b>{{ group_size }} participants,</b> please wait to be matched.</p>
+        <p><b>Please stay on this screen</b> so that you are ready to start as soon as your group is complete.</p>
+        <br>
+        <p>The page will refresh periodically to update the number of players waiting.</p>
+    </div>
+{% endblock %}
