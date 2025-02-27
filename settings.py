@@ -6,7 +6,7 @@ SESSION_CONFIGS = [
         display_name="Group Number Guessing Game",
         app_sequence=['instructions', 'game'],
         num_demo_participants=3,
-        num_rounds=2,  # Number of rounds to play
+        num_rounds=3,  # Number of rounds to play
         group_size=3,  # Players per group
     ),
 ]
@@ -26,7 +26,8 @@ REAL_WORLD_CURRENCY_CODE = 'USD'
 USE_POINTS = True
 
 ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD', 'admin')
+ADMIN_PASSWORD = 'admin'
+# ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD', 'admin')
 
 DEMO_PAGE_INTRO_HTML = """ """
 

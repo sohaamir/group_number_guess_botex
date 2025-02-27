@@ -1,4 +1,8 @@
+author = 'Aamir Sohail'
 
+doc = """
+A simple oTree experiment where players compete in estimating a randomly generated number between 0-100 across multiple rounds.
+"""
 
 from otree.api import *
 import random
@@ -7,9 +11,8 @@ import time
 class Constants(BaseConstants):
     name_in_url = 'game'
     players_per_group = 3  # Default value, will be overridden by session config
-    num_rounds = 2  # Default value, will be overridden by session config
+    num_rounds = 3  # Default value, will be overridden by session config
     guess_time_seconds = 10  # Time limit for guessing
-    result_time_seconds = 10  # Time to display results before next round
 
 class Subsession(BaseSubsession):
     def creating_session(self):
@@ -35,6 +38,7 @@ class Group(BaseGroup):
     target_number = models.IntegerField()  # No initial value
     all_players_ready = models.BooleanField(initial=False)
 
+# In the Player class, add the computer_guess field
 class Player(BasePlayer):
     guess = models.IntegerField(
         min=0, 
@@ -46,6 +50,7 @@ class Player(BasePlayer):
     total_score = models.IntegerField(initial=0)  # Cumulative score across all rounds
     rank = models.IntegerField(initial=0)  # Rank within the group for this round
     final_rank = models.IntegerField(initial=0)  # Final rank after all rounds
+    computer_guess = models.BooleanField(initial=False)  # Track if guess was made by computer
     
     # Store player's name
     name = models.StringField(initial="")
@@ -209,17 +214,22 @@ class Game(Page):
         if hasattr(player.participant, 'name') and player.participant.name:
             player.name = player.participant.name
         
-        # Only override guess if player truly didn't submit anything
+        # Handle timeout differently - directly set score to 100 instead of setting guess
         if (timeout_happened and not player.has_submitted):
-            print(f"Player {player.id_in_group} ({player.name}): No submission, defaulting to 100")
-            player.guess = 100
+            print(f"Player {player.id_in_group} ({player.name}): No submission, setting score to 100")
             player.has_submitted = True  # Mark as submitted now
+            player.computer_guess = True  # Mark this as a computer guess
+            player.score = 100  # Directly set score to 100
             
-            # Calculate the score
-            player.calculate_score()
+            # Update total score
+            if player.round_number == 1:
+                player.total_score = player.score
+            else:
+                prev_player = player.in_round(player.round_number - 1)
+                player.total_score = prev_player.total_score + player.score
         
-        # If score hasn't been calculated yet, do it now
-        if player.score == 0 and player.guess is not None:
+        # If score hasn't been calculated yet, do it now (for players who submitted guesses)
+        elif player.score == 0 and player.guess is not None:
             print(f"Player {player.id_in_group} ({player.name}): Calculating score for guess {player.guess}")
             player.calculate_score()
         
@@ -230,7 +240,6 @@ class Game(Page):
     def vars_for_template(self):
         return {
             'guess_time_seconds': Constants.guess_time_seconds,
-            'result_time_seconds': Constants.result_time_seconds,
             'round_number': self.round_number,
             'total_rounds': self.session.config.get('num_rounds', Constants.num_rounds),
         }
