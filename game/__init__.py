@@ -1,5 +1,8 @@
+
+
 from otree.api import *
 import random
+import time
 
 class Constants(BaseConstants):
     name_in_url = 'game'
@@ -45,7 +48,7 @@ class Player(BasePlayer):
     final_rank = models.IntegerField(initial=0)  # Final rank after all rounds
     
     # Store player's name
-    name = models.StringField(initial="")  # Added default empty string
+    name = models.StringField(initial="")
     
     # Add this field to track if player has submitted a guess
     has_submitted = models.BooleanField(initial=False)
@@ -53,53 +56,6 @@ class Player(BasePlayer):
     def guess_error_message(self, value):
         if value < 0 or value > 100:
             return 'Your guess must be between 0 and 100.'
-    
-    def calculate_rankings(self):
-        players = self.group.get_players()
-        
-        # Sort players by score (lower is better)
-        sorted_players = sorted(players, key=lambda p: p.score)
-        
-        # Assign ranks
-        for i, p in enumerate(sorted_players):
-            p.rank = i + 1
-            print(f"Player {p.id_in_group} ({p.name}): Rank {p.rank}, Score {p.score}")
-        
-        # If this is the final round, calculate final rankings
-        if self.round_number == self.session.config.get('num_rounds', Constants.num_rounds):
-            # Sort by total score across all rounds
-            sorted_players = sorted(players, key=lambda p: p.total_score)
-            
-            # Assign final ranks
-            for i, p in enumerate(sorted_players):
-                p.final_rank = i + 1
-                print(f"FINAL: Player {p.id_in_group} ({p.name}): Final Rank {p.final_rank}, Total Score {p.total_score}")
-    
-    def get_results_data(self):
-        players = self.group.get_players()
-        players_data = []
-        
-        for p in players:
-            # Make sure name is never None
-            player_name = p.name if p.name else f"Player {p.id_in_group}"
-            
-            players_data.append({
-                'id': p.id_in_group,
-                'name': player_name,
-                'guess': p.guess,
-                'score': p.score,
-                'rank': p.rank,
-            })
-        
-        # Sort by rank
-        players_data = sorted(players_data, key=lambda p: p['rank'])
-        
-        return {
-            'target_number': self.group.target_number,
-            'players_data': players_data,
-            'round_number': self.round_number,
-            'total_rounds': self.session.config.get('num_rounds', Constants.num_rounds),
-        }
     
     def calculate_score(self):
         # Use field_maybe_none to safely access potentially null target_number
@@ -127,101 +83,12 @@ class Player(BasePlayer):
             self.name = self.participant.name
         
         return self.score
-
-# PAGES
-class WaitForGroup(WaitPage):
-    template_name = 'game/WaitForGroup.html'
-    group_by_arrival_time = True
-    
-    def is_displayed(self):
-        return self.round_number == 1
-    
-    def vars_for_template(self):
-        waiting_players = len(self.subsession.get_players())
-        group_size = self.session.config.get('group_size', Constants.players_per_group)
-        players_needed = max(0, group_size - waiting_players % group_size)
-        if players_needed == group_size:
-            players_needed = 0
-            
-        return {
-            'waiting_count': waiting_players,
-            'group_size': group_size,
-            'players_needed': players_needed
-        }
-
-class Game(Page):  # Renamed from GamePage to Game
-    form_model = 'player'
-    form_fields = ['guess']
-    timeout_seconds = Constants.guess_time_seconds
-    
-    def live_method(self, data):
-        # Handle live updates during the game
-        if 'submitted_guess' in data:
-            # Mark player as having submitted
-            self.guess = data['submitted_guess']
-            self.has_submitted = True  # CRITICAL - set this flag
-            
-            print(f"Player {self.id_in_group} submitted guess: {self.guess}")
-            
-            # Calculate score right away
-            self.calculate_score()
-            
-            # Check if all players have submitted
-            all_submitted = all(p.has_submitted for p in self.group.get_players())
-            
-            if all_submitted:
-                # Calculate rankings
-                self.calculate_rankings()  # You'll need to define this method
-                
-                # Get result data for all players
-                results_data = self.get_results_data()  # You'll need this method too
-                
-                return {0: {'phase': 'results', 'results': results_data}}
-            else:
-                # Confirm submission to the submitting player
-                return {self.id_in_group: {'phase': 'waiting', 'guess': self.guess}}
-    
-    def before_next_page(player, timeout_happened):
-        # Make sure name is set from participant
-        if hasattr(player.participant, 'name') and player.participant.name:
-            player.name = player.participant.name
         
-        # Crucial fix: Only default to 100 if the player truly didn't submit
-        # Check if has_submitted is False AND guess is None
-        if (timeout_happened or 
-            (not getattr(player, 'has_submitted', False) and player.field_maybe_none('guess') is None)):
-            print(f"Player {player.id_in_group} ({player.name}): No submission, defaulting to 100")
-            player.guess = 100
-        else:
-            print(f"Player {player.id_in_group} ({player.name}): Valid guess {player.guess}")
-        
-        # Calculate the score
-        player.calculate_score()
-            
-        # If we haven't calculated rankings yet, do it now
-        if player.rank == 0:
-            # Get all players in the group
-            group_players = player.group.get_players()
-            
-            # Sort players by score (lower is better)
-            sorted_players = sorted(group_players, key=lambda p: p.score)
-            
-            # Assign ranks
-            for i, p in enumerate(sorted_players):
-                p.rank = i + 1
-            
-            # If this is the final round, calculate final rankings
-            if player.round_number == player.session.config.get('num_rounds', 3):
-                # Sort by total score across all rounds
-                sorted_players = sorted(group_players, key=lambda p: p.total_score)
-                
-                # Assign final ranks
-                for i, p in enumerate(sorted_players):
-                    p.final_rank = i + 1
-    
-    def calculate_rankings(self):
-        # Sort players by score (lower is better)
+    def calculate_rankings_for_group(self):
+        """Calculate rankings for all players in the group"""
         players = self.group.get_players()
+        
+        # Sort players by score (lower is better)
         sorted_players = sorted(players, key=lambda p: p.score)
         
         # Assign ranks
@@ -232,7 +99,7 @@ class Game(Page):  # Renamed from GamePage to Game
         
         # If this is the final round, calculate final rankings
         if self.round_number == self.session.config.get('num_rounds', Constants.num_rounds):
-            # Sort by total score across all rounds
+            # Sort by total score across all rounds (lower is better)
             sorted_players = sorted(players, key=lambda p: p.total_score)
             
             # Assign final ranks
@@ -240,16 +107,11 @@ class Game(Page):  # Renamed from GamePage to Game
             for i, p in enumerate(sorted_players):
                 p.final_rank = i + 1
                 print(f"  Position {p.final_rank}: {p.name} - {p.total_score} points")
-    
+
     def get_results_data(self):
+        """Get formatted results data for the current round"""
         players = self.group.get_players()
         players_data = []
-        
-        # Safe access to target_number
-        target = self.group.field_maybe_none('target_number')
-        if target is None:
-            target = random.randint(0, 100)
-            self.group.target_number = target
         
         for p in players:
             # Make sure name is never None
@@ -267,29 +129,122 @@ class Game(Page):  # Renamed from GamePage to Game
         players_data = sorted(players_data, key=lambda p: p['rank'])
         
         return {
-            'target_number': target,
+            'target_number': self.group.target_number,
             'players_data': players_data,
             'round_number': self.round_number,
             'total_rounds': self.session.config.get('num_rounds', Constants.num_rounds),
         }
+
+# PAGES
+class WaitForGroup(WaitPage):
+    template_name = 'game/WaitForGroup.html'
+    group_by_arrival_time = True
+    
+    def is_displayed(self):
+        return self.round_number == 1
+    
+    def vars_for_template(self):
+        session = self.session
+        current_time = time.time()
+        
+        # Record this player's refresh time
+        self.participant.vars['last_refresh_time'] = current_time
+        
+        # Count only participants who have refreshed in the last 7 seconds
+        waiting_participants = len([
+            p for p in session.get_participants()
+            if (p._current_page_name == 'WaitForGroup' and 
+                p._current_app_name == 'game' and
+                current_time - p.vars.get('last_refresh_time', 0) < 7)
+        ])
+        
+        group_size = self.session.config.get('group_size', Constants.players_per_group)
+        players_needed = max(0, group_size - waiting_participants % group_size)
+        if players_needed == group_size:
+            players_needed = 0
+            
+        return {
+            'waiting_count': waiting_participants,
+            'group_size': group_size,
+            'players_needed': players_needed
+        }
+
+class Game(Page):
+    form_model = 'player'
+    form_fields = ['guess']
+    timeout_seconds = Constants.guess_time_seconds
+    
+    def live_method(player, data):
+        # Handle live updates during the game
+        if 'submitted_guess' in data:
+            # Store the guess
+            player.guess = data['submitted_guess']
+            # Mark player as having submitted
+            player.has_submitted = True
+            # No save() needed in oTree - it's automatic
+            
+            print(f"Player {player.id_in_group} submitted guess: {player.guess}")
+            
+            # Calculate score right away
+            player.calculate_score()
+            
+            # Check if all players have submitted
+            all_submitted = all(p.has_submitted for p in player.group.get_players())
+            
+            if all_submitted:
+                # Calculate rankings for the group
+                player.calculate_rankings_for_group()
+                
+                # Get result data for all players
+                results_data = player.get_results_data()
+                
+                # Return results to all players
+                return {0: {'phase': 'results', 'results': results_data}}
+            else:
+                # Confirm submission to the submitting player only
+                return {player.id_in_group: {'phase': 'waiting', 'guess': player.guess}}
+    
+    def before_next_page(player, timeout_happened):
+        # Make sure name is set from participant
+        if hasattr(player.participant, 'name') and player.participant.name:
+            player.name = player.participant.name
+        
+        # Only override guess if player truly didn't submit anything
+        if (timeout_happened and not player.has_submitted):
+            print(f"Player {player.id_in_group} ({player.name}): No submission, defaulting to 100")
+            player.guess = 100
+            player.has_submitted = True  # Mark as submitted now
+            
+            # Calculate the score
+            player.calculate_score()
+        
+        # If score hasn't been calculated yet, do it now
+        if player.score == 0 and player.guess is not None:
+            print(f"Player {player.id_in_group} ({player.name}): Calculating score for guess {player.guess}")
+            player.calculate_score()
+        
+        # If rankings haven't been calculated yet, do it now
+        if player.rank == 0:
+            player.calculate_rankings_for_group()
     
     def vars_for_template(self):
         return {
             'guess_time_seconds': Constants.guess_time_seconds,
             'result_time_seconds': Constants.result_time_seconds,
             'round_number': self.round_number,
-            'total_rounds': Constants.num_rounds,
+            'total_rounds': self.session.config.get('num_rounds', Constants.num_rounds),
         }
 
 class Results(Page):
     def is_displayed(self):
-        return self.round_number == Constants.num_rounds
+        # Only display on the final round
+        return self.round_number == self.session.config.get('num_rounds', Constants.num_rounds)
     
     def vars_for_template(self):
         players = self.group.get_players()
         players_data = []
         
-        # Get correct scores by accessing player in final round (already has total)
+        # Build players data from the database
         for p in players:
             players_data.append({
                 'name': p.name,
@@ -314,6 +269,6 @@ class Results(Page):
 
 page_sequence = [
     WaitForGroup,
-    Game,  # Updated to use Game instead of GamePage
+    Game,
     Results,
 ]

@@ -1,19 +1,23 @@
 {{ block title }}
-    Final Results
 {{ endblock }}
 
 {{ block content }}
 <div class="card mb-3">
     <div class="card-body">
-        <h5 class="card-title">Game Results</h5>
+        <h1 class="card-title text-center mb-4">Game Results</h1>
         
-        <div class="alert alert-success mb-3">
-            <h4>You placed {{ player_final_rank }} with a score of {{ player_total_score }}</h4>
+        <!-- Centered image with specific dimensions -->
+        <div class="text-center mb-4">
+            <img src="{{ static 'global/podium.jpg' }}" alt="Trophy" width="200" height="180" class="img-fluid">
         </div>
         
-        <h6>Final Standings:</h6>
-        <table class="table table-striped">
-            <thead>
+        <div class="alert alert-success mb-4 text-center">
+            <h3>You placed {{ player_final_rank }} with a score of {{ player_total_score }}</h3>
+        </div>
+        
+        <h5 class="mb-3">Final Standings:</h5>
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
                 <tr>
                     <th>Position</th>
                     <th>Name</th>
@@ -22,7 +26,7 @@
             </thead>
             <tbody>
                 {% for p in players_data %}
-                    <tr{% if p.name == player_name %} class="table-primary"{% endif %}>
+                    <tr{% if p.name == player_name %} class="table-primary fw-bold"{% endif %}>
                         <td>{{ p.final_rank }}</td>
                         <td>{{ p.name }}</td>
                         <td>{{ p.total_score }}</td>
