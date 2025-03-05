@@ -1,0 +1,13 @@
+# .env - Secret variables for oTree 
+
+# Mainly to do with passwords and production settings
+
+# Run generate_secrets.py to generate your own keys then add them below
+
+# Admin password and secret key
+OTREE_ADMIN_PASSWORD=your_password
+OTREE_SECRET_KEY=your_secret_key
+
+# Production settings
+OTREE_PRODUCTION=1
+OTREE_AUTH_LEVEL=STUDY
