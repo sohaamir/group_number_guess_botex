@@ -25,7 +25,7 @@ ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD', 'admin')
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-     'https://group-number-guess-270c0fad5a0f.herokuapp.com/',
+     '.group-number-guess-270c0fad5a0f.herokuapp.com/',
 ]
 
 # APPLICATION CONFIGURATION
@@ -63,7 +63,7 @@ INSTALLED_APPS = ['otree']
 
 # Authentication level - determines what pages users can access
 # Options: DEMO, STUDY, INDIVIDUAL_DEMO (default: DEMO)
-# AUTH_LEVEL = environ.get('OTREE_AUTH_LEVEL', 'DEMO')
+AUTH_LEVEL = environ.get('OTREE_AUTH_LEVEL', 'DEMO')
 
 # Rooms configuration for testing
 ROOMS = [
