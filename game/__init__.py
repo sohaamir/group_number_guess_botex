@@ -8,12 +8,15 @@ from otree.api import *
 import random
 import time
 
+# Constants - varaibles that stay the same throughout the experiment
 class C(BaseConstants):
     NAME_IN_URL = 'game'
     PLAYERS_PER_GROUP = 3
     NUM_ROUNDS = 3
     GUESS_TIME_SECONDS = 10
 
+# Subsession class - we don't have any variables, but we define a method to create groups 
+# i.e., Subsession - for all groups in the session
 class Subsession(BaseSubsession):
     def creating_session(self):
 
@@ -29,10 +32,14 @@ class Subsession(BaseSubsession):
             group.target_number = random.randint(0, 100)
             print(f"ROUND {self.round_number}, TARGET: {group.target_number}")
 
+# Group - for all players in a group
+# We simply have one variable here - the target number which is the same for all members of the group
 class Group(BaseGroup):
     target_number = models.IntegerField()  # No initial value
 
-# Player class and methods
+# Player - a single member of the group
+# We have several variables here: guess (which we assign a dictionary reflecting the properties of the guess)
+# score, total_score, rank, final_rank, computer_guess, name, has_submitted
 class Player(BasePlayer):
     guess = models.IntegerField(
         min=0, 
@@ -54,10 +61,12 @@ class Player(BasePlayer):
     # Add this field to track if player has submitted a guess
     has_submitted = models.BooleanField(initial=False)
     
+    # Show an error message if the guess is out of range
     def guess_error_message(self, value):
         if value is not None and (value < 0 or value > 100):
             return 'Your guess must be between 0 and 100.'
     
+    # Method to calculate the score for current rounds and across rounds
     def calculate_score(self):
         # Use field_maybe_none to safely access potentially null target number
         target = self.group.field_maybe_none('target_number')
@@ -95,6 +104,7 @@ class Player(BasePlayer):
         
         return self.score
     
+    # Method to catch any missing scores just in case
     def ensure_all_rounds_scored(self):
         """Ensure all rounds up to the current round have scores properly set"""
         for r in range(1, self.round_number + 1):
@@ -121,6 +131,8 @@ class Player(BasePlayer):
         # Recalculate total score
         self.total_score = sum(self.in_round(r).score for r in range(1, self.round_number + 1))
         
+    # Method to calculate the rankings for all players in the group
+    # We also ensure that all players have valid names and scores
     def calculate_rankings_for_group(self):
         """Calculate rankings for all players in the group"""
         players = self.group.get_players()
@@ -198,6 +210,7 @@ class Player(BasePlayer):
                 p.final_rank = i + 1
                 print(f"  Position {p.final_rank}: {p.name} - {p.total_score} points")
 
+    # Method to get formatted results data for the current round
     def get_results_data(self):
         """Get formatted results data for the current round"""
         players = self.group.get_players()
@@ -218,6 +231,7 @@ class Player(BasePlayer):
         # Sort by rank
         players_data = sorted(players_data, key=lambda p: p['rank'])
         
+        # Return data which 
         return {
             'target_number': self.group.target_number,
             'players_data': players_data,

@@ -31,7 +31,7 @@
 {{ next_button }}
 
 <script>
-    // Variables
+    // Variables for JavaScript elements
     let guessTimerInterval;
     let resultsTimerInterval;
     let guessSecondsLeft = {{ GUESS_TIME_SECONDS }};
@@ -53,10 +53,10 @@
     let playerData = null;
     let myPlayerId = null;
     
-    // Hide the default next button
+    // Hide the default next button provided by oTree
     nextButton.style.display = 'none';
     
-    // Start the guess timer
+    // Start the guess timer when the page loads
     function startGuessTimer() {
         guessTimerInterval = setInterval(function() {
             guessSecondsLeft--;
@@ -69,7 +69,7 @@
         }, 1000);
     }
     
-    // Start the results timer
+    // Start the results timer when the results phase starts
     function startResultsTimer() {
         resultsTimerInterval = setInterval(function() {
             resultSecondsLeft--;
@@ -92,31 +92,31 @@
         submitGuess();
     }
     
-    // Submit the guess
+    // Submit the guess to the server when provided
     function submitGuess() {
         const guessValue = guessInput.value.trim();
         
         // Validate input
         if (guessValue !== "" && !isNaN(guessValue) && parseInt(guessValue) >= 0 && parseInt(guessValue) <= 100) {
-            // Valid input
+            // Valid input - stop the timer
             clearInterval(guessTimerInterval);
             
-            // Send the guess to the server
+            // Send the guess to the server via liveSend
             liveSend({
                 'submitted_guess': parseInt(guessValue)
             });
             
-            // Show waiting state
+            // Show waiting state to the player
             guessContainer.style.display = 'none';
             waitingContainer.style.display = 'block';
             waitingMessage.textContent = `You have chosen ${guessValue}`;
         } else {
-            // Invalid input
+            // Invalid input - show popup alert
             alert("Please enter a valid number between 0 and 100");
         }
     }
     
-    // Switch to results phase
+    // Switch to results phase after all rounds are completed
     function showResults(data) {
         // Stop any existing timers
         clearInterval(guessTimerInterval);
