@@ -19,7 +19,7 @@ SECRET_KEY = environ.get('OTREE_SECRET_KEY', '{{ secret_key }}')
 # Admin password - used to access the admin interface
 # In production, this should be set as an environment variable
 ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD', 'admin')
+ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD')
 
 # Allowed hosts - domains that this app can serve
 # In production, add your Heroku app domain
