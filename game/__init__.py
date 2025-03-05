@@ -10,7 +10,7 @@ import time
 
 class Constants(BaseConstants):
     name_in_url = 'game'
-    players_per_group = 5  # Default value, will be overridden by session config
+    players_per_group = 3  # Default value, will be overridden by session config
     num_rounds = 3  # Default value, will be overridden by session config
     guess_time_seconds = 10  # Time limit for guessing
 
