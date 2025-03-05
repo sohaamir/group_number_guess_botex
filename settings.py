@@ -3,9 +3,11 @@ from os import environ
 SESSION_CONFIGS = [
     dict(
         name='group_number_guess',
-        display_name="Number Guessing Game",
+        display_name="Group Number Guessing Game",
         app_sequence=['instructions', 'game'],
         num_demo_participants=3,
+        num_rounds=3,  # Number of rounds to play
+        group_size=3,  # Players per group
     ),
 ]
 
