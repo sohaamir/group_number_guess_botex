@@ -11,3 +11,6 @@ OTREE_SECRET_KEY=your_secret_key
 # Production settings
 OTREE_PRODUCTION=1
 OTREE_AUTH_LEVEL=DEMO
+
+# Set password as heroku config using:
+heroku config:set OTREE_ADMIN_PASSWORD=my_password
