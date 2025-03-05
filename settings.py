@@ -6,8 +6,6 @@ SESSION_CONFIGS = [
         display_name="Group Number Guessing Game",
         app_sequence=['instructions', 'game'],
         num_demo_participants=3,
-        num_rounds=3,  # Number of rounds to play
-        group_size=3,  # Players per group
     ),
 ]
 

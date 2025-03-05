@@ -8,20 +8,14 @@ from otree.api import *
 import random
 import time
 
-class Constants(BaseConstants):
-    name_in_url = 'game'
-    players_per_group = 3  # Default value, will be overridden by session config
-    num_rounds = 3  # Default value, will be overridden by session config
-    guess_time_seconds = 10  # Time limit for guessing
+class C(BaseConstants):
+    NAME_IN_URL = 'game'
+    PLAYERS_PER_GROUP = 5
+    NUM_ROUNDS = 5 
+    GUESS_TIME_SECONDS = 10
 
 class Subsession(BaseSubsession):
     def creating_session(self):
-        # Set the actual number of rounds and players per group from session config
-        if 'num_rounds' in self.session.config:
-            self.session.vars['num_rounds'] = self.session.config['num_rounds']
-        if 'group_size' in self.session.config:
-            self.session.vars['group_size'] = self.session.config['group_size']
-        
         # Create groups randomly in round 1
         if self.round_number == 1:
             self.group_randomly()
@@ -36,9 +30,8 @@ class Subsession(BaseSubsession):
 
 class Group(BaseGroup):
     target_number = models.IntegerField()  # No initial value
-    all_players_ready = models.BooleanField(initial=False)
 
-# In the Player class, add the computer_guess field
+# Player class and methods
 class Player(BasePlayer):
     guess = models.IntegerField(
         min=0, 
@@ -63,7 +56,7 @@ class Player(BasePlayer):
             return 'Your guess must be between 0 and 100.'
     
     def calculate_score(self):
-        # Use field_maybe_none to safely access potentially null target_number
+        # Use field_maybe_none to safely access potentially null target number
         target = self.group.field_maybe_none('target_number')
         
         # If target is None, generate a random one
@@ -103,7 +96,7 @@ class Player(BasePlayer):
             print(f"  {p.name}: {p.score} (rank {p.rank})")
         
         # If this is the final round, calculate final rankings
-        if self.round_number == self.session.config.get('num_rounds', Constants.num_rounds):
+        if self.round_number == C.NUM_ROUNDS:
             # Sort by total score across all rounds (lower is better)
             sorted_players = sorted(players, key=lambda p: p.total_score)
             
@@ -137,7 +130,7 @@ class Player(BasePlayer):
             'target_number': self.group.target_number,
             'players_data': players_data,
             'round_number': self.round_number,
-            'total_rounds': self.session.config.get('num_rounds', Constants.num_rounds),
+            'total_rounds': C.NUM_ROUNDS,
         }
 
 # PAGES
@@ -152,7 +145,7 @@ class WaitForGroup(WaitPage):
         session = self.session
         current_time = time.time()
         
-        # Record this player's refresh time
+        # Record the player's refresh time
         self.participant.vars['last_refresh_time'] = current_time
         
         # Count only participants who have refreshed in the last 7 seconds
@@ -163,7 +156,7 @@ class WaitForGroup(WaitPage):
                 current_time - p.vars.get('last_refresh_time', 0) < 7)
         ])
         
-        group_size = self.session.config.get('group_size', Constants.players_per_group)
+        group_size = C.PLAYERS_PER_GROUP
         players_needed = max(0, group_size - waiting_participants % group_size)
         if players_needed == group_size:
             players_needed = 0
@@ -177,16 +170,16 @@ class WaitForGroup(WaitPage):
 class Game(Page):
     form_model = 'player'
     form_fields = ['guess']
-    timeout_seconds = Constants.guess_time_seconds
+    timeout_seconds = C.GUESS_TIME_SECONDS
     
     def live_method(player, data):
         # Handle live updates during the game
         if 'submitted_guess' in data:
             # Store the guess
             player.guess = data['submitted_guess']
+
             # Mark player as having submitted
             player.has_submitted = True
-            # No save() needed in oTree - it's automatic
             
             print(f"Player {player.id_in_group} submitted guess: {player.guess}")
             
@@ -214,11 +207,11 @@ class Game(Page):
         if hasattr(player.participant, 'name') and player.participant.name:
             player.name = player.participant.name
         
-        # Handle timeout differently - directly set score to 100 instead of setting guess
+        # Handle timeout - directly set score to 100
         if (timeout_happened and not player.has_submitted):
             print(f"Player {player.id_in_group} ({player.name}): No submission, setting score to 100")
-            player.has_submitted = True  # Mark as submitted now
-            player.computer_guess = True  # Mark this as a computer guess
+            player.has_submitted = True  # Mark as submitted
+            player.computer_guess = True  # Mark as a computer guess
             player.score = 100  # Directly set score to 100
             
             # Update total score
@@ -239,15 +232,15 @@ class Game(Page):
     
     def vars_for_template(self):
         return {
-            'guess_time_seconds': Constants.guess_time_seconds,
+            'GUESS_TIME_SECONDS': C.GUESS_TIME_SECONDS,
             'round_number': self.round_number,
-            'total_rounds': self.session.config.get('num_rounds', Constants.num_rounds),
+            'total_rounds': C.NUM_ROUNDS,
         }
 
 class Results(Page):
     def is_displayed(self):
         # Only display on the final round
-        return self.round_number == self.session.config.get('num_rounds', Constants.num_rounds)
+        return self.round_number == C.NUM_ROUNDS
     
     def vars_for_template(self):
         players = self.group.get_players()

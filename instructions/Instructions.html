@@ -7,17 +7,17 @@
         <div class="card-body">
             
             <p class="card-text">
-                You will be playing a number guessing game for {{ session.config.num_rounds }} rounds.
+                You will be playing a number guessing game for {{ NUM_ROUNDS }} rounds.
             </p>
             
             <h6>How to Play:</h6>
             <ul>
-                <li>In each round, you will guess a number between 0 and 100.</li>
-                <li>You will have 10 seconds to make your guess.</li>
-                <li>A random target number will be generated.</li>
-                <li>Your score for each round is the absolute difference between your guess and the target number.</li>
-                <li>If you don't answer within the time limit, a value of 100 will be assigned as your guess.</li>
-                <li>The player with the lowest total score (closest guesses) across all rounds will win.</li>
+                <li>In each round, you will guess a number <b>between 0 and 100.</b></li>
+                <li>You will have <b>10 seconds</b> to make your guess.</li>
+                <li>A <b>random</b> target number will be generated.</li>
+                <li>Your score for each round is the <b>absolute difference</b> between your guess and the target number.</li>
+                <li>If you don't answer within the time limit, a <b>value of 100</b> will be assigned as your guess.</li>
+                <li>The player with the <b>lowest total score</b> (closest guesses) across all rounds will win.</li>
             </ul>
             
             {{ next_button }}

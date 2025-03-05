@@ -1,9 +1,10 @@
 from otree.api import *
+from game import C as GameC
 
-class Constants(BaseConstants):
-    name_in_url = 'instructions'
-    players_per_group = None
-    num_rounds = 1
+class C(BaseConstants):
+    NAME_IN_URL = 'instructions'
+    PLAYERS_PER_GROUP = None
+    NUM_ROUNDS = 1
 
 class Subsession(BaseSubsession):
     pass
@@ -28,6 +29,11 @@ class Name(Page):
         print(f"PLAYER NAME: {player.name}")
 
 class Instructions(Page):
-    pass
+    def vars_for_template(self):
+        return {
+            'NUM_ROUNDS': GameC.NUM_ROUNDS,
+            'PLAYERS_PER_GROUP': GameC.PLAYERS_PER_GROUP,
+            'GUESS_TIME_SECONDS': GameC.GUESS_TIME_SECONDS
+        }
 
 page_sequence = [Name, Instructions]
