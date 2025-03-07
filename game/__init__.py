@@ -11,7 +11,7 @@ import time
 # Constants - varaibles that stay the same throughout the experiment
 class C(BaseConstants):
     NAME_IN_URL = 'game'
-    PLAYERS_PER_GROUP = 3
+    PLAYERS_PER_GROUP = 7
     NUM_ROUNDS = 3
     GUESS_TIME_SECONDS = 10
 
