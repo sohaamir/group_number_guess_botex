@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 # This is useful for local development
 if os.path.exists('.env'):
     load_dotenv()
+    os.environ['OTREE_REST_KEY'] = environ.get('OTREE_REST_KEY', '')
 
 # SECURITY CONFIGURATION
 # ---------------------
@@ -72,3 +73,9 @@ ROOMS = [
         display_name='Number Guessing Game Room',
     ),
 ]
+
+
+
+################# botex settings #################
+
+# Botex settings

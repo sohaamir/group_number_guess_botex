@@ -11,7 +11,7 @@ import time
 # Constants - varaibles that stay the same throughout the experiment
 class C(BaseConstants):
     NAME_IN_URL = 'game'
-    PLAYERS_PER_GROUP = 7
+    PLAYERS_PER_GROUP = 3
     NUM_ROUNDS = 3
     GUESS_TIME_SECONDS = 10
 
@@ -437,8 +437,8 @@ class Results(Page):
             'player_name': my_name
         }
 
+# If using humans (i.e., not LLM bots using botex), re-add the WaitForGroup page before the Game page
 page_sequence = [
-    WaitForGroup,
     Game,
     Results,
 ]
