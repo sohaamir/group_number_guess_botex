@@ -1,0 +1,16 @@
+Experiment Summary - 2025-04-12 15:46:01
+==================================================
+
+Session ID: q6m5wwsv
+Model used: gemini/gemini-1.5-flash
+Number of participants: 3
+
+Files generated:
+- Log file: experiment_log_20250412_154531.txt
+- Bot responses: botex_q6m5wwsv_responses.csv
+Game player data:
+- otree_q6m5wwsv_game_player.csv
+
+Troubleshooting Notes:
+- Make sure Game.html has a visible otree-btn-next element
+- Bots need to be able to find and click form submit buttons

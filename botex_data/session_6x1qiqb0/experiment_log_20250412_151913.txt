@@ -1,0 +1,17 @@
+2025-04-12 15:19:13,080 - INFO - Session output directory: botex_data/session_6x1qiqb0
+2025-04-12 15:19:13,080 - INFO - Log file: botex_data/session_6x1qiqb0/experiment_log_20250412_151913.txt
+2025-04-12 15:19:13,081 - INFO - Copied database to: botex_data/session_6x1qiqb0/botex_6x1qiqb0.sqlite3
+2025-04-12 15:19:13,081 - INFO - Starting bots. You can monitor their progress at http://localhost:8000/SessionMonitor/6x1qiqb0
+2025-04-12 15:19:37,392 - INFO - Exporting oTree data...
+2025-04-12 15:19:40,648 - INFO - Normalizing oTree data...
+2025-04-12 15:19:40,679 - INFO - Exporting botex response data...
+2025-04-12 15:19:40,680 - WARNING - No bot responses could be exported: list index out of range
+2025-04-12 15:19:40,680 - INFO - This may happen if bots didn't complete any form submissions
+2025-04-12 15:19:40,681 - INFO - Cleaning up CSV files...
+2025-04-12 15:19:40,681 - INFO - Removed otree_6x1qiqb0_game_group.csv
+2025-04-12 15:19:40,682 - INFO - Removed otree_6x1qiqb0_wide.csv
+2025-04-12 15:19:40,682 - INFO - Removed otree_6x1qiqb0_participant.csv
+2025-04-12 15:19:40,682 - INFO - Removed otree_6x1qiqb0_session.csv
+2025-04-12 15:19:40,682 - INFO - Removed otree_6x1qiqb0_instructions_player.csv
+2025-04-12 15:19:40,683 - INFO - Experiment complete. All outputs saved to botex_data/session_6x1qiqb0 folder
+2025-04-12 15:19:40,683 - INFO - Stopping oTree server...

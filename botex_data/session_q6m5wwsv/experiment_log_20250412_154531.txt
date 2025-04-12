@@ -1,0 +1,16 @@
+2025-04-12 15:45:31,398 - INFO - Session output directory: botex_data/session_q6m5wwsv
+2025-04-12 15:45:31,398 - INFO - Log file: botex_data/session_q6m5wwsv/experiment_log_20250412_154531.txt
+2025-04-12 15:45:31,399 - INFO - Copied database to: botex_data/session_q6m5wwsv/botex_q6m5wwsv.sqlite3
+2025-04-12 15:45:31,399 - INFO - Starting bots. You can monitor their progress at http://localhost:8000/SessionMonitor/q6m5wwsv
+2025-04-12 15:45:58,404 - INFO - Exporting oTree data...
+2025-04-12 15:46:01,608 - INFO - Normalizing oTree data...
+2025-04-12 15:46:01,682 - INFO - Exporting botex response data...
+2025-04-12 15:46:01,684 - INFO - Bot responses successfully exported
+2025-04-12 15:46:01,684 - INFO - Cleaning up CSV files...
+2025-04-12 15:46:01,684 - INFO - Removed otree_q6m5wwsv_participant.csv
+2025-04-12 15:46:01,685 - INFO - Removed otree_q6m5wwsv_session.csv
+2025-04-12 15:46:01,685 - INFO - Removed otree_q6m5wwsv_wide.csv
+2025-04-12 15:46:01,685 - INFO - Removed otree_q6m5wwsv_game_group.csv
+2025-04-12 15:46:01,685 - INFO - Removed otree_q6m5wwsv_instructions_player.csv
+2025-04-12 15:46:01,686 - INFO - Experiment complete. All outputs saved to botex_data/session_q6m5wwsv folder
+2025-04-12 15:46:01,686 - INFO - Stopping oTree server...

@@ -10,11 +10,15 @@
             
             <div id="guess-container">
                 <h5 class="card-title">Make Your Guess</h5>
-                <p class="card-text">Enter a number between 0 and 100:</p>
+                <p class="card-text">Enter a number between 0 and 100 and then submit:</p>
                 
                 {{ formfields }}
                 
-                <button id="submit-button" class="btn btn-primary">Submit</button>
+                <!-- Hidden standard submit button for bots -->
+                <button class="otree-btn-next" id="bot-submit-button" style="position: absolute; opacity: 0.01; height: 1px; width: 1px; left: 0;">Submit (Bot)</button>
+                
+                <!-- Visible custom button for humans -->
+                <button id="human-submit-button" class="btn btn-primary">Submit</button>
                 <p class="text-muted mt-2">Press Enter to submit your guess</p>
             </div>
             
@@ -28,7 +32,13 @@
     </div>
 </div>
 
-{{ next_button }}
+<!-- Next button for bots to find -->
+<div style="position: absolute; opacity: 0.01;">
+    {{ next_button }}
+</div>
+
+<!-- Remove or don't include the regular next button -->
+<!-- {{ next_button }} -->
 
 <script>
     // Variables for JavaScript elements
@@ -43,8 +53,8 @@
     const waitingContainer = document.getElementById('waiting-container');
     const waitingMessage = document.getElementById('waiting-message');
     const guessInput = document.getElementById('id_guess');
-    const submitButton = document.getElementById('submit-button');
-    const nextButton = document.querySelector('.otree-btn-next');
+    const humanSubmitButton = document.getElementById('human-submit-button');
+    const botSubmitButton = document.getElementById('bot-submit-button');
     const targetNumberElem = document.getElementById('target-number');
     const yourGuessElem = document.getElementById('your-guess');
     const yourScoreElem = document.getElementById('your-score');
@@ -52,9 +62,6 @@
     const resultsTable = document.getElementById('results-table');
     let playerData = null;
     let myPlayerId = null;
-    
-    // Hide the default next button provided by oTree
-    nextButton.style.display = 'none';
     
     // Start the guess timer when the page loads
     function startGuessTimer() {
@@ -78,7 +85,7 @@
             if (resultSecondsLeft <= 0) {
                 clearInterval(resultsTimerInterval);
                 // Move to next round
-                nextButton.click();
+                botSubmitButton.click();
             }
         }, 1000);
     }
@@ -174,10 +181,14 @@
             // Show results
             showResults(data.results);
         }
+        else if (data.phase === 'all_submitted') {
+            // If everyone has submitted, trigger the form submission to move to next page
+            botSubmitButton.click();
+        }
     }
     
-    // Event listener for the submit button
-    submitButton.addEventListener('click', function(e) {
+    // Event listener for the human submit button
+    humanSubmitButton.addEventListener('click', function(e) {
         e.preventDefault();
         submitGuess();
     });
@@ -200,6 +211,21 @@
         
         // Get player ID - oTree specific way of finding our player ID
         myPlayerId = parseInt(document.body.getAttribute('data-player-id'));
+        
+        // For testing - create a simple small "Bot helper" link
+        const botHelper = document.createElement('a');
+        botHelper.href = "#";
+        botHelper.style.position = "fixed";
+        botHelper.style.bottom = "5px";
+        botHelper.style.right = "5px";
+        botHelper.style.fontSize = "10px";
+        botHelper.style.color = "#ccc";
+        botHelper.textContent = "Bot Helper";
+        botHelper.onclick = function(e) {
+            e.preventDefault();
+            botSubmitButton.click();
+        };
+        document.body.appendChild(botHelper);
     });
 </script>
 {{ endblock }}

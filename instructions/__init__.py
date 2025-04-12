@@ -13,7 +13,7 @@ class Group(BaseGroup):
     pass
 
 class Player(BasePlayer):
-    name = models.StringField(label="Please enter your name:")
+    name = models.StringField(label="Your name:")
 
 # PAGES
 class Name(Page):

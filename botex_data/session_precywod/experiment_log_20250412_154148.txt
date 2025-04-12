@@ -1,0 +1,17 @@
+2025-04-12 15:41:48,227 - INFO - Session output directory: botex_data/session_precywod
+2025-04-12 15:41:48,228 - INFO - Log file: botex_data/session_precywod/experiment_log_20250412_154148.txt
+2025-04-12 15:41:48,229 - INFO - Copied database to: botex_data/session_precywod/botex_precywod.sqlite3
+2025-04-12 15:41:48,229 - INFO - Starting bots. You can monitor their progress at http://localhost:8000/SessionMonitor/precywod
+2025-04-12 15:41:48,245 - INFO - Exporting oTree data...
+2025-04-12 15:41:52,152 - INFO - Normalizing oTree data...
+2025-04-12 15:41:52,184 - INFO - Exporting botex response data...
+2025-04-12 15:41:52,184 - WARNING - No bot responses could be exported: list index out of range
+2025-04-12 15:41:52,185 - INFO - This may happen if bots didn't complete any form submissions
+2025-04-12 15:41:52,185 - INFO - Cleaning up CSV files...
+2025-04-12 15:41:52,185 - INFO - Removed otree_precywod_instructions_player.csv
+2025-04-12 15:41:52,186 - INFO - Removed otree_precywod_wide.csv
+2025-04-12 15:41:52,186 - INFO - Removed otree_precywod_game_group.csv
+2025-04-12 15:41:52,186 - INFO - Removed otree_precywod_participant.csv
+2025-04-12 15:41:52,186 - INFO - Removed otree_precywod_session.csv
+2025-04-12 15:41:52,187 - INFO - Experiment complete. All outputs saved to botex_data/session_precywod folder
+2025-04-12 15:41:52,187 - INFO - Stopping oTree server...

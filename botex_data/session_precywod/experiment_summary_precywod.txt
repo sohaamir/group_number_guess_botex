@@ -1,0 +1,15 @@
+Experiment Summary - 2025-04-12 15:41:52
+==================================================
+
+Session ID: precywod
+Model used: gemini/gemini-1.5-flash
+Number of participants: 3
+
+Files generated:
+- Log file: experiment_log_20250412_154148.txt
+- Bot responses: botex_precywod_responses.csv
+Game player data:
+- otree_precywod_game_player.csv
+
+Troubleshooting Notes:
+- Bots need modifications to the Game.html template to submit guesses

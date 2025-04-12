@@ -5,7 +5,7 @@
 <div class="card mb-3">
     <div class="card-body">
         <h1 class="card-title text-center mb-4">Welcome to the Number Guessing Game</h1>
-        <p class="card-text lead text-center">Please enter your name below to begin.</p>
+        <p class="card-text lead text-center">Please enter your name below and then submit the page to begin.</p>
         
         <div class="text-center my-5">
             <img src="{{ static 'global/numbers.jpg' }}" alt="Number Game" width="350" height="200" class="img-fluid">
@@ -18,7 +18,8 @@
         </div>
         
         <div class="text-center mt-4">
-            <button class="btn btn-primary btn-lg next-button">
+            <!-- This is a custom button AND the oTree button that botex can find -->
+            <button class="btn btn-primary btn-lg next-button otree-btn-next">
                 Start Game
             </button>
         </div>
@@ -26,11 +27,6 @@
 </div>
 
 <style>
-    /* Make the Next button larger and replace it with our custom button */
-    .otree-btn-next {
-        display: none;
-    }
-    
     .next-button {
         font-size: 1.3rem;
         padding: 12px 30px;
@@ -56,16 +52,4 @@
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
 </style>
-
-<script>
-    // Connect our custom button to the original Next button
-    document.addEventListener('DOMContentLoaded', function() {
-        const nextButton = document.querySelector('.next-button');
-        const otreeButton = document.querySelector('.otree-btn-next');
-        
-        nextButton.addEventListener('click', function() {
-            otreeButton.click();
-        });
-    });
-</script>
 {{ endblock }}

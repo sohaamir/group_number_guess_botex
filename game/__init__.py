@@ -6,6 +6,7 @@ A simple oTree experiment where players compete in estimating a randomly generat
 
 from otree.api import *
 import random
+import botex
 import time
 
 # Constants - varaibles that stay the same throughout the experiment
@@ -288,7 +289,7 @@ class Game(Page):
             # Mark player as having submitted
             player.has_submitted = True
             
-            print(f"Player {player.id_in_group} submitted guess: {player.guess}")
+            print(f"Player {player.id_in_group} submitted guess via live method: {player.guess}")
             
             # Calculate score right away
             player.calculate_score()
@@ -310,6 +311,25 @@ class Game(Page):
                 return {player.id_in_group: {'phase': 'waiting', 'guess': player.guess}}
     
     def before_next_page(player, timeout_happened):
+        # This handles standard form submission (used by bots)
+        if not player.has_submitted:
+            # If guess was submitted via form
+            if player.guess is not None:
+                player.has_submitted = True
+                print(f"Player {player.id_in_group} submitted guess via form: {player.guess}")
+                # Calculate score
+                player.calculate_score()
+            # Handle timeout
+            elif timeout_happened:
+                player.has_submitted = True
+                player.computer_guess = True
+                # Set a default guess of a random number between 1-100 for bots
+                # This prevents nulls in the database
+                import random
+                player.guess = random.randint(1, 100)
+                player.score = 100  # Set penalty score
+                print(f"Player {player.id_in_group} timeout, assigned random guess: {player.guess}, score set to 100")
+
         # Make sure name is set correctly and consistently
         if hasattr(player.participant, 'name') and player.participant.name:
             player.name = player.participant.name
@@ -322,28 +342,6 @@ class Game(Page):
             if prev_player.name and prev_player.name.strip() != "":
                 player.name = prev_player.name
         
-        # Handle timeout - set score to 100 but leave guess as None
-        if (timeout_happened and not player.has_submitted):
-            player.has_submitted = True  # Mark as submitted
-            player.computer_guess = True  # Mark as a computer guess
-            player.guess = None  # Leave guess as None for timeout
-            player.score = 100  # Directly set score to 100
-            
-            print(f"Player {player.id_in_group} ({player.name}): No submission, setting score to 100")
-        
-        # If score hasn't been calculated yet, do it now (for players who submitted guesses)
-        # Use field_maybe_none to safely check the guess field
-        elif player.has_submitted and player.score == 0:
-            guess = player.field_maybe_none('guess')
-            if guess is not None:
-                print(f"Player {player.id_in_group} ({player.name}): Calculating score for guess {guess}")
-                player.calculate_score()
-            else:
-                # This is a timeout case where the player has been marked as submitted but the score wasn't set properly
-                player.score = 100
-                player.computer_guess = True
-                print(f"Player {player.id_in_group} ({player.name}): Fixing missed timeout score")
-        
         # Ensure all previous rounds are properly scored
         player.ensure_all_rounds_scored()
         
@@ -352,12 +350,27 @@ class Game(Page):
         if all(p.has_submitted for p in player.group.get_players()) and any(p.rank == 0 for p in player.group.get_players()):
             player.calculate_rankings_for_group()
     
+    # Added to help bots process the page better
+    def is_displayed(player):
+        # Always display the page
+        return True
+    
+    # Ensure we have data needed for the template
     def vars_for_template(self):
         return {
             'GUESS_TIME_SECONDS': C.GUESS_TIME_SECONDS,
             'round_number': self.round_number,
             'total_rounds': C.NUM_ROUNDS,
         }
+        
+    # This ensures bots don't have to wait for timeouts
+    def get_timeout_seconds(player):
+        # For bots, reduce timeout to speed up the experiment
+        from botex.utils import is_bot
+        if is_bot(player.participant.code):
+            return 10  # Short timeout for bots
+        else:
+            return C.GUESS_TIME_SECONDS
 
 class Results(Page):
     def is_displayed(self):
@@ -437,8 +450,9 @@ class Results(Page):
             'player_name': my_name
         }
 
-# If using humans (i.e., not LLM bots using botex), re-add the WaitForGroup page before the Game page
+# Page sequence - the order in which the pages are displayed
 page_sequence = [
+    WaitForGroup,
     Game,
     Results,
 ]
