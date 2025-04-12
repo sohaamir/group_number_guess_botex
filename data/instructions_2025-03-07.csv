@@ -1,0 +1,8 @@
+﻿participant.id_in_session,participant.code,participant.label,participant._is_bot,participant._index_in_pages,participant._max_page_index,participant._current_app_name,participant._current_page_name,participant.time_started_utc,participant.visited,participant.mturk_worker_id,participant.mturk_assignment_id,participant.payoff,player.id_in_group,player.role,player.payoff,player.name,group.id_in_subsession,subsession.round_number,session.code,session.label,session.mturk_HITId,session.mturk_HITGroupId,session.comment,session.is_demo
+1,4o9qvrjy,,0,11,11,game,Results,2025-03-07 16:43:59.969536,1,,,0.0,1,,0.0,Charley,1,1,oplbgvj4,,,,,0
+2,h5zsr738,,0,11,11,game,Results,2025-03-07 16:44:02.173685,1,,,0.0,2,,0.0,NM,1,1,oplbgvj4,,,,,0
+3,ho4tls19,,0,11,11,game,Results,2025-03-07 16:44:02.425600,1,,,0.0,3,,0.0,Zhilin,1,1,oplbgvj4,,,,,0
+4,498dhyy8,,0,11,11,game,Results,2025-03-07 16:44:03.340827,1,,,0.0,4,,0.0,Meijia,1,1,oplbgvj4,,,,,0
+5,nvmunlto,,0,11,11,game,Results,2025-03-07 16:44:04.461023,1,,,0.0,5,,0.0,Emma,1,1,oplbgvj4,,,,,0
+6,jv56ueuu,,0,11,11,game,Results,2025-03-07 16:44:05.365545,1,,,0.0,6,,0.0,Aamir,1,1,oplbgvj4,,,,,0
+7,6bpjc32e,,0,11,11,game,Results,2025-03-07 16:44:06.091038,1,,,0.0,7,,0.0,Eden,1,1,oplbgvj4,,,,,0
