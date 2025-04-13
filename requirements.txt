@@ -1,4 +1,4 @@
 otree>=5.0.0a21
 psycopg2>=2.8.4
-python-dotenv>=1.0.1
-botex >=0.2.0
+python-dotenv>=0.21.1
+botex
